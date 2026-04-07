@@ -1,0 +1,1001 @@
+
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  
+
+
+      <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+
+  
+
+  <title>CSS Star Wars Scout Drone UI Animation</title>
+
+    <link rel="canonical" href="https://codepen.io/propjockey/pen/ZEXNjrd">
+  
+  
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Cairo:wght@200..1000&family=Noto+Naskh+Arabic:wght@400..700&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+
+  
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { display: grid; min-height: 100vh; background:var(--glass)}
+
+
+
+.augfiguration {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 5 / 4;
+  --width: min(100vw, 90vh / 4 * 5);
+  width: var(--width);
+
+}
+
+
+.viewport {
+    background: #080820;
+    /* --mask: var(--pxmaskimg) 0 0 / 1.25vmin 1.25vmin; */
+    /* -webkit-mask: var(--mask); */
+    /* mask: var(--mask); */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+width: 98%;
+    height: 100vh;
+}
+
+.blackout {
+  clip-path: none;
+  pointer-events: none;
+      /*filter: blur(calc(var(--width) * 0.005)) drop-shadow(0 0 1vh black);*/
+      height: 100%;
+    width: 100%;
+}
+
+
+
+
+
+.redline {
+  --width: calc(min(100vw, 63vh / 4 * 5) * 0.95);
+  --aug-t: (var(--width) * 0.06);
+  --aug-b: (var(--width) * 0.06);
+  --aug-t-extend1: 35%;
+  --aug-b-extend1: 35%;
+  --aug-border-all: calc(var(--width) * 0.006);
+  --aug-border-bg: linear-gradient(90deg,#00ff88,#00d1ff);
+      width: 98%;
+    height: 90%;
+}
+
+.dotdecor {
+  --width: calc(min(100vw, 90vh / 4 * 5) * 0.91);
+  --aug-border-all: calc(var(--width) * 0.01);
+  --aug-border-bg: linear-gradient(to bottom, transparent 20%, rgb(255 255 255 / 50%), transparent 80%);
+      width: 95%;
+    height: 84%;
+}
+.dotdecor::after {
+  --mask: repeating-linear-gradient(
+    to bottom,
+    black 0px var(--aug-border-all),
+    transparent var(--aug-border-all) calc(var(--aug-border-all) * 3)
+  );
+  -webkit-mask: var(--mask);
+  mask: var(--mask);
+}
+
+.beacon {
+  z-index: 9;
+  position: absolute;
+  bottom: 0%;
+  right: 0%;
+  width: 8%;
+  aspect-ratio: 1 / 1;
+  --scalar: (var(--width) / 100);
+background: radial-gradient(
+  circle at center,
+  var(--neon) calc(0.5 * var(--scalar)),
+  transparent calc(0.5 * var(--scalar)) calc(1.1 * var(--scalar)),
+  var(--accent) calc(1.2 * var(--scalar)) calc(1.3 * var(--scalar)),
+  transparent calc(1.4 * var(--scalar)) calc(2 * var(--scalar)),
+  var(--accent) calc(2 * var(--scalar)) calc(2.1 * var(--scalar)),
+  transparent calc(2.1 * var(--scalar)) calc(2.7 * var(--scalar)),
+  var(--accent) calc(2.7 * var(--scalar)) calc(2.8 * var(--scalar)),
+  transparent calc(3 * var(--scalar))
+);
+  opacity: 0.8;
+  filter: drop-shadow(0 0 calc(0.5 * var(--scalar)) var(--neon));
+}
+
+@keyframes beacon {
+  from {
+    zoom: 8;
+    transform: scale(0.125);
+    opacity: 1;
+  }
+  to {
+    zoom: 1;
+    transform: scale(1);
+    opacity: 0.25;
+  }
+}
+.beacon::after {
+  content: "";
+  position: absolute;
+  inset: 14%;
+  border: calc(0.25 * var(--scalar)) solid var(--neon);
+  border-radius: 50%;
+  zoom: 1;
+  transform: scale(0.5);
+  animation: beacon 1.5s linear infinite;
+}
+
+.tunnel {
+  pointer-events: none;
+  list-style: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  --time: 3.5s;
+}
+.tunnel::after {
+  content: "";
+  z-index: 100;
+  position: absolute;
+  aspect-ratio: 1 / 1;
+  inset: 44%;
+  top: 37.5%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at center,
+    black,
+    transparent
+  );
+}
+@keyframes zoomzoom {
+  from {
+    z-index: 1;
+    transform: scale(0.125);
+  }
+  to {
+    z-index: 10;
+    transform: scale(2);
+  }
+}
+.tunnel > * {
+  position: absolute;
+  top: -10%;
+  --aug-border-all: calc(var(--width) / 10);
+  --aug-all-width: var(--width);
+  --aug-border-bg: radial-gradient(
+    circle at center 60%,
+    navy,
+    #112 50%,
+    transparent 65%
+  );
+  clip-path: none;
+  filter: drop-shadow(0 0 calc(var(--width) / 20) rgb(0 0 0 / 0.5));
+  transform: scale(0.125);
+  animation: zoomzoom var(--time) cubic-bezier(1, 0, 0.9, 0.45) infinite;
+}
+.tunnel > :nth-child(1) { animation-delay: calc(var(--time) / 5); z-index: 5; }
+.tunnel > :nth-child(2) { animation-delay: calc(var(--time) / 5 * 2); z-index: 4; }
+.tunnel > :nth-child(3) { animation-delay: calc(var(--time) / 5 * 3); z-index: 3; }
+.tunnel > :nth-child(4) { animation-delay: calc(var(--time) / 5 * 4); z-index: 2; }
+.tunnel > :nth-child(5) { animation-delay: calc(var(--time)); z-index: 1; }
+
+
+
+
+.top-decoration {
+
+    /* Upside-down \_______/ */
+  clip-path: polygon(
+    0% 0%,    /* top-left */
+    100% 0%,  /* top-right */
+    90% 100%, /* bottom-right */
+    10% 100%  /* bottom-left */
+  );
+
+  width: 50%;
+
+    position: absolute;
+    left: 25%;
+    z-index: 5;
+    color: #fff;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    top: 0px;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    background:var(--glass);
+
+        padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+
+.bottom-decoration {
+position: absolute;
+    /* bottom: -1px; */
+    /* position: absolute; */
+width: 34.2%;
+    height: 4.8%;
+    left: 32.9%;
+    z-index: 5;
+    color: #fff;
+    text-align: center;
+    display: flex;
+    align-items: flex-start;
+    bottom: 00px;
+    justify-content: flex-start;
+    flex-direction: column;
+  /* Clip-path for \_______/ shape */
+  clip-path: polygon(
+    10% 0%,  /* top-left corner */
+    90% 0%,  /* top-right corner */
+    100% 100%, /* bottom-right corner */
+    0% 100%   /* bottom-left corner */
+  );
+    backdrop-filter: blur(4px);
+
+        background:var(--glass);
+        padding-top: 10px;
+    padding-bottom: 10px;
+        align-items: center;
+    justify-content: center;
+}
+
+
+
+.the-future-is-augmented {
+  position: absolute;
+  top: 12%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: calc(var(--width) / 25);
+  text-decoration: none;
+  font-family: sans-serif;
+  color: #c25802;
+  opacity: 0.9;
+  background: linear-gradient(
+    to right,
+    #c25802 40%,
+    #ec910f 51% 54%,
+    #c25802 60%
+  );
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  text-fill-color: transparent;
+  background-clip: text;
+  z-index: 10;
+}
+
+:root {
+  /* this is the grainy texture / only image used */
+  --pxmaskimg: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAQAAADZc7J/AAABi0lEQVRIx+3UTW9SQRSA4WcucAENDbWKrRuSGhcmLvr/f4UbY+KCqIlG8IO2WL4uzHXB5UIjlLhywyxmMZk5c85535wgyoz09bz13hd3ml547cpL51pSAeTI5SAIrM4TBBWpphOnzjx15okTTalK+TgXLcxNTUzNZKIoJ4iWpm709Xw0MNHwTNelc6caKoJYPJ+Zi4JUXaomEYIolxm7MdB3ba6mraOj7VFRwFJmYmRkLFPVdKK1yjGI5YXfbo0tVDW11hcoPrg2MDA0k2rreL76IIh/pZiobVKkKPGbnk/6Juo6ui5daGuuApCLouWqMSoSlaLBuYU73332zgdfjTVceOWNro7HCQWYREWqrq6hpiopYJEXJd4a+umHX4ZGJjJL+TqAkvV6373WQcuVbHFeykxNzcwt1pwPebKrifc4l03c48k2xp2cS4x7PNmItIfzlkg7PdmovIfzDpXveRLEhzmrPexJcojzIU+SQ5wPefIv82CnJ8d5cJwHx3nwH+ZBVaquoVE2OPAH4PLAAI/m8L8AAAAASUVORK5CYII=);
+}
+
+.singnalcharge {
+background: #04de3b;
+    padding: 6px;
+    margin-left: 6px;
+    height: 25px;
+    border-radius: 10px;
+}
+
+.noCharge {
+
+  background: #ffffff29;
+}
+
+
+
+
+ :root{
+    --neon: #00ff88;
+    --neon-dim: rgba(0,255,136,0.18);
+    --glass: rgba(0,0,0,0.45);
+    --accent: #00d1ff;
+    --bg: #000;
+    --font: "Segoe UI", Roboto, "Helvetica Neue", Arial, monospace;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--glass);font-family:var(--font);-webkit-font-smoothing:antialiased}
+  .video-container{position:relative;width:100vw;height:100vh;overflow:hidden;display:block}
+
+/* camera/video (placeholder: black) */
+  #camera{width:100%;height:100%;object-fit:cover;background:linear-gradient(180deg,#010101 0%, #001214 100%)}
+
+/* outer glowing frame */
+  .hud-frame{
+    inset:10px;
+  }
+  .hud-glow{
+    position:absolute;inset:-40px;
+    background:radial-gradient(closest-side, rgba(0,255,136,0.06), transparent 35%),
+               radial-gradient(closest-side, rgba(0,209,255,0.03), transparent 25%);
+    filter:blur(18px);mix-blend-mode:screen;pointer-events:none;
+    animation:glowShift 8s linear infinite;
+  }
+  @keyframes glowShift{0%{transform:translateX(-6%)}50%{transform:translateX(6%)}100%{transform:translateX(-6%)}}
+
+/* HUD surface */
+  .hud{
+    position:absolute;inset:0;padding:14px;pointer-events:none;color:var(--neon);
+
+  }
+
+/* top center mode + small indicator */
+  .mode-status{
+    position:absolute;left:50%;top:80px;transform:translateX(-50%);
+    background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.00));
+    border:1px solid var(--neon-dim);padding:6px 12px;border-radius:8px;font-size:13px;
+    display:flex;gap:10px;align-items:center;backdrop-filter:blur(4px);
+  }
+  .mode-led{width:10px;height:10px;border-radius:50%;box-shadow:0 0 6px var(--neon);background:var(--neon)}
+
+/* left / right stat columns (military) */
+  .stat{font-family: Orbitron;
+    position:absolute;top:50%;transform:translateY(-50%);width:105px;background:var(--glass);
+    border-radius:10px;padding:8px;
+    text-align:center;backdrop-filter:blur(4px);
+  }
+  .speed{left:18px}
+  .alt{right:18px}
+  .stat .label{font-size:11px;opacity:0.7}
+  .stat .value{font-size:22px;font-weight:700;letter-spacing:1px}
+
+/* vertical speed block */
+  .vspeed{right:140px;top:50%;transform:translateY(-50%);width:90px;padding:8px}
+
+/* heading tape (inertial) */
+.heading-wrap {
+    position: absolute;
+    left: 50%;
+    bottom: 60px;
+    transform: translateX(-50%);
+    width: 37%;
+    height: 30px;
+    overflow: hidden;
+    border-radius: 10px;
+    padding: 6px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.12));
+    border: 1px solid var(--neon-dim);
+    z-index: 999999999999999999999999999;
+    backdrop-filter: blur(4px);
+    /* NEW → fade edges from 100 → 0 opacity */
+    mask-image: linear-gradient(
+        to right, 
+        transparent 0%,        /* fully hidden at far left */
+        black 50%,             /* fade in by 20% */
+        black 80%,             /* full visible center */
+        transparent 100%       /* fade out to hidden */
+    );
+
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        black 50%,
+        black 80%,
+        transparent 100%
+    );
+}
+
+.heading-center-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60px;
+    height: 26px;
+    transform: translate(-50%, -50%);
+    border: 2px solid var(--neon);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--neon);
+    z-index: 9999999999;
+    pointer-events: none;
+    background: #000;z
+    -index: 999999999999999999999999999999999999999999999999999999999999999999999;
+}
+
+
+  .heading-tape{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;font-size:15px;z-index: 1999999999999999999999999999;  }
+  .heading-major{display:inline-block;padding:0 12px;font-weight:700;z-index: 2999999999999999999999999999;}
+
+/* 3D horizon arc background */
+  .horizon-zone{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .horizon-3d{
+    width:77%;height:54%;max-height:520px;border-radius:50%/20%;
+    transform-origin:center center;overflow:visible;filter:drop-shadow(0 6px 18px rgba(0,255,136,0.06));
+    position:relative;
+  }
+  .horizon-sky{position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,33,0,0.12) 0%, rgba(0,0,0,0.0) 55%);border-radius:inherit}
+  .horizon-line{
+    position:absolute;left:0;right:0;top:49.7%;height:2px;background:linear-gradient(90deg,var(--neon),var(--accent));
+    box-shadow:0 0 14px rgba(0,255,136,0.35);
+    transform-origin:center center;
+  }
+
+/* pitch ladder as arc segments */
+  .pitch-ladder{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;height:420px;border-radius:50%;
+    pointer-events:none;opacity:0;transition:opacity .8s;}
+  .pitch-ladder.visible{opacity:1}
+  .pitch-tick{
+    position:absolute;left:50%;top:50%;transform-origin:50% 0%;
+    font-size:13px;text-align:center;width:260px;margin-left:-130px;color:var(--neon);
+  }
+  /* ticks are placed with JS along arc */
+
+/* center crosshair + racing accents */
+  .center-reticle{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+  .reticle-h{width:160px;height:2px;background:var(--neon);box-shadow:0 0 12px var(--neon)}
+  .reticle-v{width:2px;height:160px;background:var(--neon);margin:-80px auto -80px;box-shadow:0 0 12px var(--neon)}
+  .reticle-corner{position:absolute;width:22px;height:22px;border:2px solid var(--neon);opacity:0.9;border-radius:4px}
+  .reticle-corner.tl{left:-190px;top:-90px;transform:translate(0,0) rotate(0deg)}
+  .reticle-corner.bl{left:-190px;bottom:-90px}
+  .reticle-corner.tr{right:-190px;top:-90px}
+  .reticle-corner.br{right:-190px;bottom:-90px}
+
+/* racing sweep animation (thin arc that pulses) */
+  .racing-arc{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:420px;height:420px;border-radius:50%;
+    pointer-events:none;border:1px dashed rgba(0,255,136,0.06);
+  }
+  .sweep{
+    position:absolute;left:50%;top:50%;transform-origin:0 0; width:220px;height:220px;border-radius:50%;
+    border-top:2px solid rgba(0,255,136,0.65);opacity:0.9;
+    animation:sweepRotate 3s linear infinite;
+    mix-blend-mode:screen;
+  }
+  @keyframes sweepRotate{0%{transform:rotate(0deg) translate(-50%,-50%)}100%{transform:rotate(360deg) translate(-50%,-50%)}}
+
+
+  .bar{width:180px;height:10px;border-radius:6px;background:#ffffff78;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+  .bar-fill{height:100%;width:60%;background:linear-gradient(90deg,var(--neon),var(--accent));box-shadow:0 0 8px rgba(0,255,136,0.25);}
+  .tele-row{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--neon);    width: calc(100% - 150px);font-family: Orbitron;
+    align-items: center;}
+
+/* sat icons */
+  .sats{display:flex;gap:6px;align-items:center}
+  .sat{width:8px;height:8px;border-radius:50%;background:rgba(0,255,136,0.6);}
+
+/* small HUD elements */
+  .mini{
+/* 
+border:1px solid rgba(0,255,136,0.04);
+font-size:12px;
+*/
+
+    position:absolute;padding:6px 8px;border-radius:8px;background:rgba(0,0,0,0.4);
+    
+    backdrop-filter: blur(4px);
+  }
+
+  .mini.right-top{justify-self: right;}
+
+/* crosshair pulse */
+  .pulse {
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:26px;height:26px;border-radius:50%;
+    border:2px solid rgba(0,255,136,0.15);
+    animation:ping 1.6s infinite;
+  }
+  @keyframes ping{0%{transform:translate(-50%,-50%) scale(.8);opacity:1}70%{transform:translate(-50%,-50%) scale(2.2);opacity:0}100%{opacity:0}}
+
+/* small responsive tweaks */
+  @media (max-width:720px){
+    .heading-wrap{width:90%}
+    .stat{display:none}
+    .horizon-3d{width:94%}
+    .reticle-h{width:110px}
+    .reticle-v{height:110px}
+  }
+
+/* HUD bottom-left telemetry smalls (GPS / sats / battery) */
+  .tele-bottom{
+    position:absolute;left:18px;bottom:18px;display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:10px;background:var(--glass);
+    backdrop-filter: blur(4px);
+  }
+
+</style>
+
+  <script>
+  window.console = window.console || function(t) {};
+</script>
+
+  
+  
+</head>
+
+<body translate="no">  
+
+
+  <div class="augfiguration viewport" data-augmented-ui="t-clip-x b-clip-x">
+
+
+
+
+
+
+
+
+<div class="video-container">
+
+
+    <video id="camera" autoplay muted loop>
+        <source src="/static/Video/1.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+
+
+  <div class="hud-frame">
+    <div class="hud-glow"></div>
+
+    <div class="hud">
+
+      <!-- MODE and LED -->
+      <div class="mode-status"><div class="mode-led" id="modeLed"></div><div id="modeText">MODE: STABILIZE</div></div>
+
+      <!-- top left mini -->
+      <div class="mini left-top" id="mission">FPV • PRO</div>
+      <div class="mini right-top" id="arm">ARM: DISARM</div>
+
+      <!-- left / right stats -->
+      <div class="stat speed"><div class="label">SPD</div><div class="value" id="spdVal">0</div></div>
+      <div class="stat alt"><div class="label">ALT</div><div class="value" id="altVal">0</div></div>
+
+      <!-- horizon + 3D arc -->
+      <div class="horizon-zone">
+        <div class="horizon-3d" id="horizon3d">
+          <div class="horizon-sky"></div>
+          <div class="horizon-line" id="horizonLine"></div>
+
+          <div class="pitch-ladder" id="pitchLadder"></div>
+
+          <div class="racing-arc" aria-hidden="true">
+            <div class="sweep"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- center reticle -->
+      <div class="center-reticle">
+        <div class="reticle-h"></div>
+        <div class="reticle-v"></div>
+        <div class="pulse"></div>
+      </div>
+
+      <!-- large corner markers (subtle) -->
+      <div class="reticle-corner tl"></div><div class="reticle-corner tr"></div>
+      <div class="reticle-corner bl"></div><div class="reticle-corner br"></div>
+
+
+
+      <!-- heading tape with inertial smoothing -->
+      <div class="heading-wrap"><div class="heading-tape" id="headingTape"></div><div class="heading-center-box" id="headingBox"></div></div>
+
+
+      <!-- telemetry bottom left -->
+      <div class="tele-bottom">
+
+        <div class="tele-row" style="width: auto !important;"><div style="display:flex;width:70px;align-items: center;justify-content: center;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0" y="0" viewBox="0 0 68 68" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M20.073 39.873c-.06-.06-.13-.13-.19-.2l-2.31 2.31c-.09.09-.15.22-.15.35 0 .14.06.26.15.36l1.806 1.804-1.256 1.256c.75.6 1.48 1.25 2.18 1.95s1.34 1.43 1.93 2.18l1.268-1.269 1.812 1.81c.1.1.22.15.35.15.13 0 .26-.05.36-.15l2.3-2.3a3.68 3.68 0 0 1-.2-.19zM54.082 22.053a.495.495 0 0 0 .15-.81l-7.48-7.48a.499.499 0 0 0-.44-.13.508.508 0 0 0-.37.28l-2.41 5.4 5.151 5.15zM41.653 43.593l4.14-4.14-2.257-2.266 5.894-5.895a3.306 3.306 0 0 0 0-4.668l-8.053-8.053a3.305 3.305 0 0 0-4.668 0l-5.9 5.9-2.256-2.258-4.14 4.14 2.258 2.257-5.892 5.891a3.28 3.28 0 0 0-.967 2.334c0 .881.344 1.71.967 2.333l8.054 8.054a3.29 3.29 0 0 0 2.333.965c.845 0 1.69-.322 2.334-.965l5.895-5.896zM53.587 50.691l4.192-4.192 3.699 3.698-4.193 4.193zM44.773 41.86l4.193-4.193 3.7 3.7-4.194 4.193zM49.18 46.275l4.193-4.193 3.7 3.7-4.193 4.193zM44.278 51.184l4.193-4.193 3.7 3.7-4.194 4.192zM39.873 46.769l4.194-4.194 3.699 3.7-4.194 4.193zM53.09 60l4.193-4.194 3.699 3.7-4.193 4.192zM48.685 55.582l4.194-4.194 3.699 3.7-4.194 4.193zM57.992 55.098l4.193-4.193 3.699 3.7-4.193 4.192zM13.121 20.011l4.194-4.193 3.699 3.7-4.194 4.192zM8.716 15.602l4.194-4.194 3.699 3.7-4.194 4.193zM22.428 19.521l4.194-4.193 3.699 3.7-4.194 4.192zM4.31 11.2l4.194-4.193 3.699 3.7-4.193 4.192zM17.526 24.418l4.194-4.193 3.7 3.7-4.194 4.193zM9.21 6.298l4.194-4.194 3.699 3.7-4.194 4.193zM13.617 10.705l4.193-4.193 3.699 3.7-4.193 4.192zM18.022 15.111l4.194-4.193 3.698 3.698-4.193 4.194zM19.597 48.413c-2.806-2.806-6.13-4.765-9.358-5.515-3.32-.77-6.152-.182-7.99 1.653a.5.5 0 0 0 0 .707l8.373 8.373-3.12 3.872c.76.11 1.45.45 2 1 .56.56.89 1.25 1 1.98l3.863-3.11 8.377 8.377a.498.498 0 0 0 .707 0c1.835-1.836 2.423-4.672 1.654-7.987-.75-3.227-2.704-6.548-5.506-9.35M5.184 59.203a2.56 2.56 0 0 0 .007 3.614 2.533 2.533 0 0 0 1.8.745h.004c.68 0 1.322-.264 1.802-.745a2.554 2.554 0 0 0-3.613-3.614" fill="#00ff88" opacity="1" data-original="#fff"></path></g></svg> &nbsp;GPS</div><div class="bar" style="flex:1"><div class="bar-fill" id="gpsFix" style="width:72%"></div></div></div>
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+  #map {    height: 300px;
+    width: 100%;
+    border-radius: 10px; }
+  .leaflet-control-attribution { display: none !important; } /* hide attribution */
+</style>
+
+
+<div id="map"></div>
+
+
+
+
+
+<center style="font-family: Orbitron;"><v id="LAT"></v>,<v id="LON"></v></center>
+
+
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+
+
+
+<div
+  aria-hidden="true"
+  class="augfiguration blackout"
+  data-augmented-ui="t-clip-x b-clip-x"
+>
+
+
+
+
+  <div class="top-decoration">
+
+    <v style="font-size: xx-large;
+    font-family: Orbitron;">
+DASHBOARD <sub>Drone 01.15</sub></v>
+
+</div>
+
+
+
+
+
+
+  <div class="bottom-decoration">
+        <div class="tele-row"><div style="display:flex;width:70px;align-items: center;justify-content: flex-start;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0" y="0" viewBox="0 0 24 24" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g><path d="M22.241 7H22v-.25A2.753 2.753 0 0 0 19.25 4H2.75A2.753 2.753 0 0 0 0 6.75v9.5A2.753 2.753 0 0 0 2.75 19h16.5A2.753 2.753 0 0 0 22 16.25V16h.241c.965 0 1.75-.785 1.75-1.75v-5.5c0-.965-.785-1.75-1.75-1.75zm-8.324 3.77-3.496 5.499a.498.498 0 0 1-.917-.331l.43-3.438-1.438-.002a.498.498 0 0 1-.406-.791l3.576-4.999a.501.501 0 0 1 .901.372L12.088 10l1.408.002a.5.5 0 0 1 .421.768z" fill="#00ff88" opacity="1" data-original="#000000" class=""></path></g></svg>&nbsp; BAT</div><div style="font-size:13px" id="batteryHour">13:30H</div><div class="bar" style="flex:1"><div class="bar-fill" id="batFill" style="width:86%"></div></div>
+        <div style="font-size:13px" id="batteryValt">14.5V</div>
+      </div>
+
+        <div class="tele-row" style="align-items:center"><div style="display:flex;width:70px;align-items: center;justify-content: flex-start;"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" x="0" y="0" viewBox="0 0 24 24" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g transform="matrix(1.1900000000000002,0,0,1.1900000000000002,-2.27999995470047,-2.2845988082885764)"><path fill="#00ff88" fill-rule="evenodd" d="M5.91 4.298a1 1 0 0 0-1.411.089 10 10 0 0 0 0 13.226 1 1 0 1 0 1.5-1.323A8 8 0 0 1 6 5.71a1 1 0 0 0-.089-1.412zm12.18 0a1 1 0 0 1 1.411.089 10 10 0 0 1 0 13.226 1 1 0 1 1-1.5-1.323 8 8 0 0 0 0-10.58 1 1 0 0 1 .089-1.412zm-1.716 2.595a1 1 0 1 0-1.458 1.369 4 4 0 0 1 0 5.476 1 1 0 1 0 1.458 1.37 6 6 0 0 0 0-8.215zM9.04 6.848a1 1 0 0 0-1.414.045 6 6 0 0 0 0 8.214 1 1 0 1 0 1.458-1.369 4 4 0 0 1 0-5.476 1 1 0 0 0-.044-1.414zM14 11a2 2 0 0 1-1 1.732V19a1 1 0 1 1-2 0v-6.268A2 2 0 0 1 12 9a2 2 0 0 1 2 2z" clip-rule="evenodd" opacity="1" data-original="#000000" class=""></path></g></svg>&nbsp; SATS</div><div style="font-size:13px" id="satCount">0</div><div class="sats" id="satRow"></div></div>
+
+
+  </div>
+
+
+
+<div aria-hidden="true" class="beacon"></div>
+
+
+
+
+
+</div>
+  
+
+
+
+
+
+
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+
+
+
+
+  <script>
+/* ============================
+   Telemetry (demo) variables
+   Replace these with your live inputs
+   ============================ */
+let pitch = 0, roll = 0, yaw = 0, speed = 0, altitude = 0, vspeed = 0;
+let gps = 72, battery = 86, sats = 7;
+let armed = false, mode = "STABILIZE";
+
+
+
+
+
+
+
+/* DOM refs */
+const spdEl = document.getElementById('spdVal');
+const altEl = document.getElementById('altVal');
+const vsEl  = document.getElementById('vsVal');
+const headingTapEl = document.getElementById('headingTape');
+const pitchLadder = document.getElementById('pitchLadder');
+const horizon3d = document.getElementById('horizon3d');
+const horizonLine = document.getElementById('horizonLine');
+const satRow = document.getElementById('satRow');
+const satCount = document.getElementById('satCount');
+const batFill = document.getElementById('batFill');
+const gpsFill = document.getElementById('gpsFix');
+const modeText = document.getElementById('modeText');
+const modeLed = document.getElementById('modeLed');
+const armEl = document.getElementById('arm');
+
+
+
+
+        const socket = io();
+
+
+
+
+let map, droneMarker;
+
+// Initialize map once with a default location
+map = L.map('map', { attributionControl: false, zoomControl: false }).setView([25.0, 55.0], 17);
+// Tile layers
+const streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+streets.addTo(map);
+
+// Drone SVG icon
+const droneSvg = `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="50" x="0" y="0" viewBox="0 0 512 512" style="enable-background:new 0 0 512 512" xml:space="preserve" class=""><g transform="matrix(1.01,0,0,1.01,-2.560010356903092,-2.5600052452087425)"><g fill-rule="evenodd"><path fill="#4eb1fc" d="m280.077 447.45-24.09 53.549-24.091-53.549v-21.267l24.091-15.186 24.09 15.186zM318.189 288.468v56.138l167.362 105.495v-76.614l-61.899-57.378-42.213-90.891z" opacity="1" data-original="#4eb1fc"></path><path fill="#85caff" d="m140.291 378.325 53.493-33.719v-56.138l-63.25-63.25L218.67 34.845c6.889-14.88 20.919-23.846 37.316-23.846s30.428 8.966 37.316 23.846l88.136 190.373-63.25 63.25v56.138l53.493 33.719v122.674l-53.493-53.493v-42.352l-62.203-39.209-62.203 39.209v42.352l-53.493 53.493V378.325z" opacity="1" data-original="#85caff" class=""></path><path fill="#4eb1fc" d="M193.784 288.468v56.138L26.422 450.101v-76.614l61.9-57.378 42.212-90.891zM255.986 245.606c14.817 0 26.942-12.125 26.942-26.941v-82.513c0-14.815-12.127-26.942-26.942-26.942s-26.942 12.125-26.942 26.942v82.513c0 14.818 12.124 26.941 26.942 26.941z" opacity="1" data-original="#4eb1fc"></path><path fill="#242222" d="m477.561 435.602-151.358-95.407v-48.413l52.814-52.814 37.396 80.515a7.842 7.842 0 0 0 1.813 2.491l59.335 55.008v58.621zm-113.867-52.86-49.76-31.369a8 8 0 0 1-3.732-6.768v-56.134c0-.266.014-.531.041-.792a8 8 0 0 1 2.299-4.868l59.303-59.299-85.791-185.306c-4.401-9.511-12.36-15.977-22.05-18.267v82.21c15.419 3.627 26.936 17.493 26.936 34.002v82.517c0 16.513-11.517 30.38-26.936 34.007v108.857l58.47 36.864a7.99 7.99 0 0 1 3.728 6.759v39.039l37.492 37.492v-98.943zm-174.159 15.652a7.992 7.992 0 0 0-3.742 6.759v39.039l-37.492 37.492v-98.943l49.76-31.369a8.001 8.001 0 0 0 3.732-6.768V288.47a7.994 7.994 0 0 0-2.34-5.66l-59.299-59.299 85.791-185.306c4.41-9.511 12.36-15.977 22.059-18.267v82.21c-15.433 3.627-26.941 17.493-26.941 34.002v82.517c0 16.513 11.508 30.375 26.941 34.007v108.857l-58.47 36.864zm-155.1-21.413v58.621l151.359-95.407v-48.413l-52.81-52.814-37.391 80.515a8.012 8.012 0 0 1-1.818 2.491l-59.34 55.008zm221.57-139.374c-10.45 0-18.94-8.495-18.94-18.94V136.15c0-10.441 8.49-18.94 18.94-18.94s18.94 8.499 18.94 18.94v82.517c0 10.445-8.504 18.94-18.94 18.94zm235.002 130.014-60.75-56.309-41.545-89.463h-.004L300.576 31.487c-8.252-17.837-24.921-28.488-44.571-28.488s-36.319 10.652-44.581 28.488l-88.131 190.361-41.549 89.463-60.75 56.309a8.008 8.008 0 0 0-2.56 5.871V450.1a7.994 7.994 0 0 0 4.14 7.002c1.2.669 2.532.998 3.861.998a7.992 7.992 0 0 0 4.268-1.227l101.603-64.052V501a8.002 8.002 0 0 0 8.001 8 7.986 7.986 0 0 0 5.66-2.34l53.488-53.497a7.982 7.982 0 0 0 2.34-5.651v-37.94l54.211-34.172 54.197 34.172v37.94c0 2.12.843 4.149 2.34 5.651l53.501 53.497a7.994 7.994 0 0 0 8.71 1.731 8.007 8.007 0 0 0 4.941-7.391V392.821l101.608 64.052a7.988 7.988 0 0 0 4.264 1.227c1.328 0 2.661-.33 3.87-.998a7.985 7.985 0 0 0 4.131-7.002v-76.609c0-2.23-.934-4.36-2.56-5.871zm-218.914 78.111-16.088 35.77-16.092-35.77v-15.14l16.092-10.139 16.088 10.139zm12.259-26.322a8.012 8.012 0 0 1 3.741 6.773v21.271a7.877 7.877 0 0 1-.71 3.279l-24.088 53.552c-1.292 2.867-4.14 4.717-7.291 4.717s-6.013-1.85-7.3-4.717l-24.092-53.552a8.093 8.093 0 0 1-.701-3.279v-21.271a8.024 8.024 0 0 1 3.732-6.773l24.088-15.176a7.958 7.958 0 0 1 8.531 0l24.088 15.176z" opacity="1" data-original="#242222" class=""></path></g></g></svg>`;
+
+const droneIcon = L.divIcon({ html: droneSvg, className: '', iconSize: [50, 50], iconAnchor: [25, 25] });
+
+// Add drone marker at initial position
+droneMarker = L.marker([25.0, 55.0], { icon: droneIcon }).addTo(map).bindPopup('Drone Location');
+
+
+
+
+
+
+
+let displayYaw = 0;
+let numberWidth = 0;
+
+
+
+
+socket.on('telemetry', data => {
+
+document.getElementById('batFill').style.width = `${Math.max(0,Math.min(100,data.battery))}%`;
+
+
+document.getElementById('spdVal').textContent = Math.round(data.speed);
+document.getElementById('altVal').textContent = Math.round(data.alt);
+
+document.getElementById('LON').textContent = data.lat;
+document.getElementById('LAT').textContent = data.lon;
+
+
+
+  document.getElementById('headingBox').textContent = Math.round(data.yaw);
+  // smoothing
+  const yawDiff = shortestAngleDiff(displayYaw, yaw);
+  displayYaw = (displayYaw + yawDiff * 0.06 + 360) % 360;
+  const pxPerDeg = 3.2;
+  headingTapEl.style.transform = `translate(calc(-50% - ${displayYaw * pxPerDeg}px), -50%)`;
+
+
+  document.getElementById('satCount').textContent = String(Math.round(data.stateAntain)).padStart(2, '0');
+  document.getElementById('satRow').innerHTML = '';
+  for(let i = 0; i < Math.round(data.stateAntain); i++){
+    const s = document.createElement('div');
+    s.className = 'sat';
+    s.style.opacity = 1; // all visible
+    document.getElementById('satRow').appendChild(s);
+}
+
+
+
+document.getElementById('batteryValt').textContent = `${String(Math.round(data.batteryValt)).padStart(2, '0')} V`;
+
+const hours = data.batteryHour / 60;
+document.getElementById('batteryHour').textContent = `${hours.toFixed(1).padStart(4, '0')} H`;
+
+
+
+// Update drone position
+droneMarker.setLatLng([data.lat, data.lon]);
+// Always center the map on the drone
+map.panTo([data.lat, data.lon], { animate: true, duration: 0.5 }); // smooth pan
+
+
+});
+
+
+
+
+
+
+
+
+/* fill heading tape numbers */
+(function createHeadingTape(){
+  const arr = [];
+  for (let r = 0; r < 3; r++) {      // repeat 3 times for seamless loop
+    for (let i = 0; i < 360; i += 10) {
+      arr.push(`<span class="heading-major">${i}</span>`);
+    }
+  }
+  headingTapEl.innerHTML = arr.join('');
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ============================
+   Pitch ladder: create arc ticks
+   ============================ */
+(function createPitchTicks(){
+  const ticks = [-40,-30,-20,-10,0,10,20,30,40];
+  const radius = 180;
+  ticks.forEach((v, idx) => {
+    const el = document.createElement('div');
+    el.className='pitch-tick';
+    el.textContent = (v>0?`+${v}`:v);
+    // transformed later each frame
+    pitchLadder.appendChild(el);
+  });
+})();
+
+/* ============================
+   Smooth/inertial heading (lerp)
+   ============================ */
+function lerp(a,b,t){return a+(b-a)*t}
+function shortestAngleDiff(a,b){
+  let d = (b - a + 540) % 360 - 180;
+  return d;
+}
+
+/* ladder visibility */
+let lastPitchMove = Date.now();
+let ladderVisible = true;
+
+
+ladderVisible = true; pitchLadder.classList.add('visible');
+/* update loop */
+function updateHUD(){
+  // smoothing
+  const yawDiff = shortestAngleDiff(displayYaw, yaw);
+  displayYaw = (displayYaw + yawDiff * 0.06 + 360) % 360;
+
+  // rotate horizon (roll) and apply slight perspective tilt from pitch
+  horizon3d.style.transform = `rotate(${roll}deg) perspective(800px) rotateX(${pitch*0.08}deg)`;
+  horizonLine.style.top = `${50 - pitch*0.8}%`;
+
+  // place pitch ticks on an arc (simulate 3D curved ladder)
+  const ticks = pitchLadder.querySelectorAll('.pitch-tick');
+  const center = {x:0,y:0};
+  const arcRadius = 190;
+  ticks.forEach((tEl, i) => {
+    const val = parseInt(tEl.textContent);
+    // angle offset per degree
+    const degOffset = (val - pitch) * 0.9; // sensitivity
+    const angle = degOffset * Math.PI/180; // radians
+    const x = Math.sin(angle) * arcRadius;
+    const y = Math.cos(angle) * arcRadius * 0.45; // squash for ellipse
+    const scale = 1 - Math.abs(degOffset)/120;
+    tEl.style.transform = `translate(${x}px, ${y}px) scale(${Math.max(scale,0.55)})`;
+    tEl.style.opacity = `${Math.max(0.06, scale)}`;
+  });
+
+
+
+  // telemetry bars
+  
+  gpsFill.style.width = `${Math.max(0,Math.min(100,gps))}%`;
+
+  // sats
+
+  // ladder auto-hide/show
+  if(Math.abs(pitch) > 1.2){
+    lastPitchMove = Date.now(); 
+  } else {
+    if(Date.now() - lastPitchMove > 2000) hideLadder();
+  }
+
+  // mode & arm
+  modeText.textContent = `MODE: ${mode}`;
+  modeLed.style.background = mode.startsWith('STAB') ? 'var(--neon)' : 'var(--accent)';
+  armEl.textContent = `ARM: ${armed? 'ARMED' : 'DISARM'}`;
+  armEl.style.borderColor = armed ? 'rgba(0,255,136,0.14)' : 'rgba(255,0,0,0.04)';
+
+  requestAnimationFrame(updateHUD);
+}
+requestAnimationFrame(updateHUD);
+
+/* ============================
+   DEMO telemetry generator
+   Remove/replace this with real telemetry updates
+   ============================ */
+setInterval(()=>{
+  const t = Date.now();
+  pitch = Math.sin(t/900)*12 + Math.sin(t/4300)*4;
+  roll  = Math.sin(t/1600)*24;
+  yaw   = (yaw + 0.45 + Math.sin(t/2200)*0.2) % 360;
+  speed = 40 + Math.sin(t/600)*12;
+  altitude = 120 + Math.sin(t/1400)*30;
+  vspeed = Math.sin(t/800)*2;
+  // battery slowly drops, gps varies, sats vary
+  battery = 86 - (t/100000)%32;
+  gps = 72 + Math.floor(Math.sin(t/1500)*10);
+  sats = 5 + Math.max(0, Math.round(Math.abs(Math.sin(t/900))*6));
+  // toggle armed randomly for demo
+  if(Math.random()<0.002) armed=!armed;
+  // change mode occasionally
+  if(Math.random()<0.0015) mode = ['STABILIZE','ACRO','ALT_HOLD','LOITER','RACE'][Math.floor(Math.random()*5)];
+}, 50);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // ----- Tile Layers -----
+  var satellite = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    maxZoom: 20,
+    subdomains:['mt0','mt1','mt2','mt3']
+  });
+  var dark = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_dark/{z}/{x}/{y}{r}.png', { maxZoom: 20 });
+  var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { maxZoom: 17 });
+
+  streets.addTo(map);
+
+  // Layer control
+  var baseMaps = { "Streets": streets, "Satellite": satellite, "Topographic": topo };
+  L.control.layers(baseMaps).addTo(map);
+
+
+
+</script>
+
+
+
+  
+</body>
+
+</html>
